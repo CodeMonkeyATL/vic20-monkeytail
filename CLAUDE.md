@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-GAMENAME, a GENRE for an **unexpanded VIC-20**, written in Commodore BASIC V2 (petcat text format). The README has the rules and controls; `docs/design.md` explains how the program works. `docs/todo.md` lists known issues and ideas.
+MonkeyTail, a snake game for an **unexpanded VIC-20**, written in Commodore BASIC V2 (petcat text format). The README has the rules and controls; `docs/design.md` explains how the program works. `docs/todo.md` lists known issues and ideas.
 
 ## Build and run
 
@@ -25,7 +25,9 @@ GAMENAME, a GENRE for an **unexpanded VIC-20**, written in Commodore BASIC V2 (p
 
 ## Source files (`src/`)
 
-- `template.bas`: the game (rename it for the project).
+- `monkeytail.bas`: the game.
+
+The glyph test that settled the tail's look is `meta/src/tailtest.bas`, in the private `meta` repo. **Keep it there:** this repo may go public, and the test shouldn't. Port what the game needs from it; don't copy the file here.
 
 ## Docs
 
@@ -35,7 +37,10 @@ GAMENAME, a GENRE for an **unexpanded VIC-20**, written in Commodore BASIC V2 (p
 
 ## Program architecture
 
-Describe the flow, data model, screen layout and routine blocks here once they exist. Free memory: not measured yet (measure with `?fre(0)` after quitting).
+No game code yet; `docs/design.md`, "Decisions so far", holds what's decided. Describe the flow, data model, screen layout and routine blocks here once they exist. Free memory: not measured yet (measure with `?fre(0)` after quitting).
+
+- **Built in small reviewed steps,** as MonkeySwap was: one routine or idea per step, with the BASIC choices explained, stopping for the user's review before the next. The user wants to be involved, not handed finished code.
+- **The custom character set takes the top 256 bytes** (top of BASIC at 7424), so program and variables share about 3.3K, not 3.5K.
 
 - Subroutines live at fixed line-number blocks; keep new routines in their own blocks.
 
