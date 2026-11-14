@@ -1,21 +1,17 @@
-# template
+# MonkeyTail
 
-A starter repo for VIC-20 BASIC V2 games. Rename `template` throughout (this README, `src/template.bas`, `docs/`, `CLAUDE.md`) and replace the placeholder sections.
+MonkeyTail is a snake game for the **unexpanded VIC-20**, written in Commodore BASIC V2. A monkey eats bananas, and its tail grows behind it.
 
-GAMENAME is a GENRE for the **unexpanded VIC-20**, written in Commodore BASIC V2.
+## features (planned)
 
-## features
-
-- list game features here
+- a monkey whose tail grows with every banana
+- the tail drawn with custom characters: chevrons that show which way it's moving, and a tapered tip
+- walls end the game
 - runs on a stock VIC-20 with no memory expansion
 
 ## how to play
 
-Game rules here.
-
-| Key | Action |
-|---|---|
-| `q` | quit |
+Steer the monkey to the bananas. Hitting a wall or your own tail ends the game. Controls aren't decided yet.
 
 ## screenshots
 
@@ -30,7 +26,7 @@ Game rules here.
 
 ```
 src/
-  template.bas       the game
+  monkeytail.bas     the game
 
 prgs/
   (.prg files built by the GitHub Action)
@@ -68,7 +64,7 @@ The `.prg` is generated with `petcat`. The repository includes Linux and Windows
 **The `rem`s are stripped first.** They cost memory on the VIC, so the source keeps them and the PRG doesn't: `buildtools/strip-rems.ps1` writes a copy without them (a line that's only a `rem` is dropped, a `:rem` at the end of a line is cut off), and petcat builds that copy. So put a routine's `rem` at the end of its first code line, never on a line of its own that a `goto` or `gosub` jumps to (`check-basic.ps1` warns about that). By hand, without stripping:
 
 ```
-petcat -w2 -l 1001 -o prgs/template src/template.bas
+petcat -w2 -l 1001 -o prgs/monkeytail src/monkeytail.bas
 ```
 
 `-l 1001` sets the load address to $1001, the start of BASIC on an unexpanded VIC-20.
@@ -89,13 +85,13 @@ The IDE config folders are gitignored, so copy the task file into place once:
 ### in VICE
 
 ```
-xvic -memory none -autostart prgs/template
+xvic -memory none -autostart prgs/monkeytail
 ```
 
 or load it from the BASIC prompt:
 
 ```
-load "template",8
+load "monkeytail",8
 run
 ```
 
