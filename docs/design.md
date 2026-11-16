@@ -103,7 +103,9 @@ No arrays besides the step table `o%(0-3)` (-22, 1, 22, -1 for up, right, down, 
 | 100-130 | init: top of BASIC to 7424 (first, since its `clr` wipes variables), addresses, steps, empty the keyboard buffer |
 | 200-210 | character set: reads `code, 8 bytes` groups until -1 and pokes them at 7168+code×8 |
 | 300-370 | board: colors and RAM character set on, bricks, title, score and help |
-| 500-520 | for now: wait for a key, put the ROM character set and top of BASIC back, end |
+| 400-470 | play: the head starts at row 10, column 10 moving right; each move waits (410), reads at most one key, steps, and ends the game on any cell that isn't blank |
+| 480 | game over: `GAME OVER` on the score line (row 19, column 11), then falls into 500 |
+| 500-520 | for now: wait for a key, put the ROM character set and top of BASIC back, end; `qq` goes straight to 520 |
 | 1000-1050 | character data: blank, head, banana, brick, the 16 tail pieces |
 
 ## Variables
@@ -115,7 +117,20 @@ No arrays besides the step table `o%(0-3)` (-22, 1, 22, -1 for up, right, down, 
 | `o%()` | step for each direction |
 | `i` | loop temporary |
 | `k`, `t` | character code and byte while loading the character set |
+| `p` | the head's screen offset (row×22 + column) |
+| `n` | the cell the head moves into |
+| `d` | the direction the head moves: 0 up, 1 right, 2 down, 3 left |
+| `j` | the direction a key asks for |
+| `k` | the key's code, `asc(a$)and127` (Shift ignored); also a character code while loading |
+| `l` | the previous key, for `qq` |
 | `a$` | last key from `get` |
+
+### Play loop details
+
+- **Keys:** `j=-(k=68)-2*(k=83)-3*(k=65)` turns `d`, `s`, `a` into 1, 2, 3 and anything else into 0; a 0 counts as up only when the key was `w` (87). A key pressed between moves waits in the keyboard buffer, so quick turns queue up instead of being lost.
+- **No reversing:** `ifj<>((d+2)and3)thend=j`; `(d+2)and3` is the opposite direction. It matters once the tail exists.
+- **Crash:** a single `peek` of the next cell: anything but blank (32) ends the game, which covers the walls now and the tail later. Bananas will need their own check first.
+- **Speed:** a delay loop, `fori=1to400:next` (410), about 2-3 moves a second. 150 was "much too fast to start out" (the user, 2026-11-15: more like the speed after eating a lot).
 
 ## Sound
 
@@ -128,3 +143,4 @@ Free memory measured with `?fre(0)` after quitting, with the date and what chang
 | Date | Free | After |
 |---|---|---|
 | 2026-11-15 | 2409 (about 2100 in play) | character set and board (PRG 1176). The value after quitting includes the 256 bytes the character set gives back. |
+| 2026-11-15 | about 1800 in play (estimated from the PRG, 1488) | the help framed in bricks, layout B, the moving head |
