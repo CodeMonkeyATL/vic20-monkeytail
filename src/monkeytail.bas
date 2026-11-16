@@ -7,13 +7,13 @@
 210 fori=0to7:readt:poke7168+k*8+i,t:next:goto200
 
 300 poke36879,8:poke36869,255:print"{clr}";:rem board: bricks, title, help
-310 fori=0to21:pokes+i,42:pokec+i,2:pokes+44+i,42:pokec+44+i,2
-320 pokes+396+i,42:pokec+396+i,2:next
-330 fori=22to374step22:pokes+i,42:pokec+i,2:pokes+i+21,42:pokec+i+21,2:next
+310 fori=0to21:pokec+i,2:pokes+i,42:pokec+44+i,2:pokes+44+i,42
+320 pokec+396+i,2:pokes+396+i,42:pokec+484+i,2:pokes+484+i,42:next
+330 fori=22to462step22:pokec+i,2:pokes+i,42:pokec+i+21,2:pokes+i+21,42:next
 340 print"{home}{down}{right}{right}{reverse on}{wht}code{yel}monkey{wht}atl{yel}tail"
-350 poke214,18:print:print"{reverse on}{cyn} sc {wht}0":print
-360 print"{reverse on} {cyn}wasd{wht}=move  {cyn}qq{wht}=quit"
-370 print"{reverse on} {cyn}m{wht}ute";
+350 poke214,18:print:print"{reverse on}{right}{cyn}score {wht}0"
+360 printtab(12)"{reverse on}{cyn}qq{wht}=quit"
+370 print"{reverse on}{right}{cyn}wasd{wht}=move   {cyn}m{wht}=mute";
 
 500 poke198,0:rem wait for a key, then restore and end
 510 geta$:ifa$=""then510
