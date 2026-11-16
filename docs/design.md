@@ -10,6 +10,16 @@ What was decided before the code exists (2026-11-13; the idea started in `meta/i
 
 A snake game: the monkey moves on its own, the player steers, each banana makes the tail longer. **Hitting a wall or the tail ends the game** (no wrap-around; wrapping could be a variant later).
 
+### Play
+
+Decided 2026-11-15:
+
+- **Controls:** WASD, as in MonkeySwap.
+- **Speed:** fixed. The monkey moves at one rate all game, set by a delay in the main loop and tuned by playing.
+- **Growth:** each banana adds **3 cells**: the tail end stays put for the next 3 moves.
+- **Score:** bananas eaten. That's what the leaderboard shows.
+- **Bananas:** placed in a random cell inside the walls, picked again with `peek` until it's empty.
+
 ### The tail lives on the screen
 
 The tail's cells are never stored in an array. Each body cell's **character code says which way the tail leaves that cell**, so the tail end can follow the body by reading the screen:
