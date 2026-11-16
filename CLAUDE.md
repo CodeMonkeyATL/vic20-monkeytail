@@ -37,7 +37,7 @@ The glyph test that settled the tail's look is `meta/src/tailtest.bas`, in the p
 
 ## Program architecture
 
-No game code yet; `docs/design.md`, "Decisions so far", holds what's decided. Describe the flow, data model, screen layout and routine blocks here once they exist. Free memory: not measured yet (measure with `?fre(0)` after quitting).
+So far (2026-11-15): init, the character set loaded from ready-made bytes, and the board (bricks, title, score and help); no game loop yet. `docs/design.md` has the screen layout, routine map and variable table, and how the tail glyph bytes are made from the drawings. Free memory: about 2100 bytes in play (`?fre(0)` after quitting reads 256 more, since quitting gives the character set's memory back).
 
 - **Built in small reviewed steps,** as MonkeySwap was: one routine or idea per step, with the BASIC choices explained, stopping for the user's review before the next. The user wants to be involved, not handed finished code.
 - **The custom character set takes the top 256 bytes** (top of BASIC at 7424), so program and variables share about 3.3K, not 3.5K.
