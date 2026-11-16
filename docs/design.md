@@ -81,14 +81,16 @@ The screen is 22×23 characters; screen RAM starts at 7680 (`s`) and color RAM a
 | 0 | bricks |
 | 1 | brick, space, title (columns 2-18), bricks at column 21 |
 | 2 | bricks |
-| 3-17 | the play area: columns 1-20 (20×15), bricks at columns 0 and 21 |
+| 3-17 | the play area: columns 1-20 (20×15), bricks at columns 0 and 21 (and on every row from 1 to 21) |
 | 18 | bricks |
-| 19 | ` SC 0`: `SC` cyan, the score white |
-| 20 | blank |
-| 21 | ` WASD=MOVE  QQ=QUIT`: keys cyan, the rest white |
-| 22 | ` MUTE`: `M` cyan, `UTE` white; printed with `;` so the screen doesn't scroll |
+| 19 | `SCORE 0` from column 1, on its own: `SCORE` cyan, the score white |
+| 20 | `QQ=QUIT` at columns 12-18 (`printtab(12)`) |
+| 21 | `WASD=MOVE` from column 1, `M=MUTE` at columns 13-18; printed with `;` |
 
-Bricks are code 42 in red (2). Rows 19-22 are reached with `poke214,18:print` (`meta/docs/routines.md`, "Cursor to a row, cheaply").
+The keys are cyan and the rest white; the `=` of `QQ=QUIT` and `M=MUTE` line up in column 14 (the user's layout, 2026-11-15).
+| 22 | bricks |
+
+Rows 19-21 are framed in bricks at columns 0 and 21, like the title (2026-11-15), so the screen is one brick frame with three panels. Bricks are code 42 in red (2), each cell's color poked before its brick so none shows white first. They're poked, never printed, so row 22's last cell can't scroll the screen. The text is reached with `poke214,18:print` (`meta/docs/routines.md`, "Cursor to a row, cheaply") and starts with `{right}`, which steps over the brick at column 0.
 
 ## Data model
 
