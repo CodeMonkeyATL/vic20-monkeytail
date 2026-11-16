@@ -75,3 +75,15 @@ function Get-Tokens([string]$text) {
     }
     return , $tokens
 }
+
+# the line numbers a line's tokens jump to: goto/gosub/then targets, including "on x goto a,b,c" lists
+function Get-JumpTargets($tokens) {
+    $code = -join ($tokens | Where-Object { $_.Type -in @('kw', 'ch') } | ForEach-Object { $_.Text })
+    $result = New-Object System.Collections.Generic.List[int]
+    foreach ($m in [regex]::Matches($code, '(goto|gosub|then)\s*(\d+(\s*,\s*\d+)*)')) {
+        foreach ($t in ($m.Groups[2].Value -split ',')) {
+            $result.Add([int]$t.Trim())
+        }
+    }
+    return , $result
+}
