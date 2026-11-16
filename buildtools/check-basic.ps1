@@ -140,18 +140,15 @@ for ($n = 0; $n -lt $lines.Length; $n++) {
         Warn $srcLine $label $p
     }
 
-    # the code part: strings and rem text removed
-    $code = -join ($tokens | Where-Object { $_.Type -in @('kw', 'ch', 'data') } | ForEach-Object { $_.Text })
+    # the code part: strings and rem text removed, including quoted strings among the data items
+    $code = -join ($tokens | Where-Object { $_.Type -in @('kw', 'ch', 'data') } | ForEach-Object { $_.Text -replace '"[^"]*"?', '' })
     $spaces = ($code.ToCharArray() | Where-Object { $_ -eq ' ' }).Count
     if ($spaces -gt 0) {
         Warn $srcLine $label ("{0} space(s) outside strings" -f $spaces)
     }
 
-    # goto/gosub/then targets, including "on x goto a,b,c" lists
-    foreach ($m in [regex]::Matches($code, '(goto|gosub|then)\s*(\d+(\s*,\s*\d+)*)')) {
-        foreach ($t in ($m.Groups[2].Value -split ',')) {
-            $targets.Add([pscustomobject]@{ Target = [int]$t.Trim(); SrcLine = $srcLine; Label = $label })
-        }
+    foreach ($t in (Get-JumpTargets $tokens)) {
+        $targets.Add([pscustomobject]@{ Target = $t; SrcLine = $srcLine; Label = $label })
     }
 }
 
@@ -159,7 +156,7 @@ foreach ($t in $targets) {
     if (-not $numbers.ContainsKey($t.Target)) {
         Warn $t.SrcLine $t.Label ("jumps to line {0}, which doesn't exist" -f $t.Target)
     } elseif ($remOnly.ContainsKey($t.Target)) {
-        Warn $t.SrcLine $t.Label ("jumps to line {0}, which holds only a rem; the build strips rems, so put the rem at the end of the routine's first code line" -f $t.Target)
+        Warn $t.SrcLine $t.Label ("jumps to line {0}, which holds only a rem; the build keeps it as a bare rem (6 bytes), so put the rem at the end of the routine's first code line" -f $t.Target)
     }
 }
 
