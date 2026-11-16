@@ -32,7 +32,7 @@ The tail's cells are never stored in an array. Each body cell's **character code
 
 ### Glyphs
 
-A custom character set, chosen 2026-11-13 by eye in `tailtest.bas`:
+A custom character set, chosen by eye in `tailtest.bas` (2026-11-13; the body redrawn as a closed tube 2026-11-15, the user's drawings):
 
 | Codes | Glyph |
 |---|---|
@@ -40,11 +40,25 @@ A custom character set, chosen 2026-11-13 by eye in `tailtest.bas`:
 | 40 | the head: a monkey face |
 | 41 | a banana |
 | 42 | a brick (the walls) |
-| 48, 53, 58, 63 | straight pieces (`in=out`): a double chevron pointing the way it moves |
-| the other 8 of 48-63 | corners: **a copy of the straight piece going out** (two-half and elbow corners were tried and dropped as too jagged or backwards-looking) |
-| 50, 55, 56, 61 | **tail tips**, in the codes of the impossible U-turns (`in` opposite `out`): a small chevron with a dash. Their `and3` is still the way out (56 up, 61 right, 50 down, 55 left), so the tail reads a tip like any other cell |
+| 48, 53, 58, 63 | straight pieces (`in=out`): a double chevron pointing the way it moves, **with solid edges on both sides**, so the body reads as a tube |
+| the other 8 of 48-63 | **corners: their own glyph**, a diamond: the outer side is a 45° bevel that carries the incoming chevron on, splitting into the outgoing chevron, whose legs meet the outgoing piece's edges; one pixel closes the inner side. (Copying the straight piece going out worked for the edgeless pieces, but with edges it left a wall across the bend. A wider bevel was tried and dropped: the diamond is the regular shape.) |
+| 50, 55, 56, 61 | **tail tips**, in the codes of the impossible U-turns (`in` opposite `out`): the body's edges step in to a rounded point. Their `and3` is still the way out (56 up, 61 right, 50 down, 55 left), so the tail reads a tip like any other cell |
 
-The straight piece and the tail tip are each drawn once, for "out right", and turned into the other three directions by the program at start. Head, banana and brick are first drafts.
+Drawn "out right" (the corner: in right, out down), 8 rows each:
+
+```
+straight   corner     tail tip
+########   #.......   ........
+.#...#..   .#......   ......##
+..#...#.   ..#.....   ....###.
+...#...#   ...#....   ...#...#
+...#...#   ...##...   ...#...#
+..#...#.   ..#..#..   ....###.
+.#...#..   .#....#.   ......##
+########   #......#   ........
+```
+
+Each is drawn once and turned into the other directions by the program at start. The corner drawn is the clockwise turn; turning it gives the other three clockwise corners, and the four counterclockwise ones are the same drawing flipped across its diagonal (swap row and column) before turning. Head, banana and brick are first drafts.
 
 **Memory and text:** with `poke36869,255` the VIC reads codes 0-63 from RAM at 7168 and codes 128-255 as the normal ROM glyphs (`meta/src/chartest.bas`). Our codes 32-63 sit at 7424-7679, so the top of BASIC drops to 7424 (`poke51,0:poke52,29:poke55,0:poke56,29:clr`), costing 256 bytes. **All text has to be printed reversed** (`{reverse on}`), which puts it in codes 128-255, where it shows as normal letters.
 
