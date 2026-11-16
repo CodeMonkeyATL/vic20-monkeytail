@@ -58,19 +58,15 @@ straight   corner     tail tip
 ########   #......#   ........
 ```
 
-Each is drawn once and turned into the other directions by the program at start. The corner drawn is the clockwise turn; turning it gives the other three clockwise corners, and the four counterclockwise ones are the same drawing flipped across its diagonal (swap row and column) before turning. Head, banana and brick are first drafts.
+These drawings are the source; the program stores all 16 tail pieces ready-made as bytes (lines 1010-1040). Each drawing is turned into the other directions; the corner drawn is the clockwise turn, turning it gives the other three clockwise corners, and the four counterclockwise ones are the same drawing flipped across its diagonal (swap row and column) before turning. Turning them in BASIC at start took 35 seconds (2026-11-15), so a throwaway script did it once instead: for each `#` at row `r`, column `n`, flip (`x=r`, `y=n`) if counterclockwise, else `x=n`, `y=r`; then turn `k` times (`t=x`, `x=7-y`, `y=t`), with `k=(out-1)and3` for straights and tips, `k=(out-2+flip)and3` for corners; set bit `128>>x` of byte `y`. **When a drawing changes, regenerate the bytes the same way** (`meta/src/tailtest.bas` does it in BASIC, slowly). Head, banana and brick are first drafts.
+
+The 8 corners are only 4 pictures (up-to-right looks like left-to-down, and so on: the diamond looks the same from both ends of the bend). Their codes stay distinct, since the code carries the direction; a tightening pass could copy the bytes of the duplicates instead of storing them (about 140 bytes).
 
 **Memory and text:** with `poke36869,255` the VIC reads codes 0-63 from RAM at 7168 and codes 128-255 as the normal ROM glyphs (`meta/src/chartest.bas`). Our codes 32-63 sit at 7424-7679, so the top of BASIC drops to 7424 (`poke51,0:poke52,29:poke55,0:poke56,29:clr`), costing 256 bytes. **All text has to be printed reversed** (`{reverse on}`), which puts it in codes 128-255, where it shows as normal letters.
 
 ### Title
 
-The user's idea (2026-11-13) for the top line, possibly framed in bricks on all sides:
-
-```
-{wht}CODE{yel}MONKEY{wht}ATL {yel}TAIL
-```
-
-18 characters, so it fits with a brick at each end (20 of 22 columns). Printed reversed, as all text.
+Built 2026-11-15 on row 1, framed in bricks: `CODE` and `ATL` white, `MONKEY` and `TAIL` yellow, with no space before `TAIL` (the user's board sketch). See "Screen layout".
 
 ## The game
 
@@ -78,22 +74,45 @@ Rules, modes and scoring, as the program implements them.
 
 ## Screen layout
 
-The screen is 22×23 characters; screen RAM starts at 7680 and color RAM at 38400. Map which rows and columns hold what.
+The screen is 22×23 characters; screen RAM starts at 7680 (`s`) and color RAM at 38400 (`c`). The user's layout (2026-11-15), black screen and border:
+
+| Rows | Content |
+|---|---|
+| 0 | bricks |
+| 1 | brick, space, title (columns 2-18), bricks at column 21 |
+| 2 | bricks |
+| 3-17 | the play area: columns 1-20 (20×15), bricks at columns 0 and 21 |
+| 18 | bricks |
+| 19 | ` SC 0`: `SC` cyan, the score white |
+| 20 | blank |
+| 21 | ` WASD=MOVE  QQ=QUIT`: keys cyan, the rest white |
+| 22 | ` MUTE`: `M` cyan, `UTE` white; printed with `;` so the screen doesn't scroll |
+
+Bricks are code 42 in red (2). Rows 19-22 are reached with `poke214,18:print` (`meta/docs/routines.md`, "Cursor to a row, cheaply").
 
 ## Data model
 
-Arrays and what each element holds. Document the bit layout of any packed value.
+No arrays besides the step table `o%(0-3)` (-22, 1, 22, -1 for up, right, down, left). The tail lives on the screen (see "The tail lives on the screen").
 
 ## Routines
 
 | Lines | Routine |
 |---|---|
-| 100 | init |
+| 100-130 | init: top of BASIC to 7424 (first, since its `clr` wipes variables), addresses, steps, empty the keyboard buffer |
+| 200-210 | character set: reads `code, 8 bytes` groups until -1 and pokes them at 7168+code×8 |
+| 300-370 | board: colors and RAM character set on, bricks, title, score and help |
+| 500-520 | for now: wait for a key, put the ROM character set and top of BASIC back, end |
+| 1000-1050 | character data: blank, head, banana, brick, the 16 tail pieces |
 
 ## Variables
 
 | Name | Meaning |
 |---|---|
+| `s` | screen RAM, 7680 |
+| `c` | color RAM, 38400 |
+| `o%()` | step for each direction |
+| `i` | loop temporary |
+| `k`, `t` | character code and byte while loading the character set |
 | `a$` | last key from `get` |
 
 ## Sound
@@ -106,3 +125,4 @@ Free memory measured with `?fre(0)` after quitting, with the date and what chang
 
 | Date | Free | After |
 |---|---|---|
+| 2026-11-15 | 2409 (about 2100 in play) | character set and board (PRG 1176). The value after quitting includes the 256 bytes the character set gives back. |
