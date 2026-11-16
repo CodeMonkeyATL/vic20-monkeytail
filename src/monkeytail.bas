@@ -15,6 +15,17 @@
 360 printtab(12)"{reverse on}{cyn}qq{wht}=quit"
 370 print"{reverse on}{right}{cyn}wasd{wht}=move   {cyn}m{wht}=mute";
 
+400 p=230:d=1:l=0:pokec+p,1:pokes+p,40:poke198,0:rem play: head mid-field, moving right
+410 fori=1to400:next:rem delay, tuned by play
+420 geta$:ifa$=""then460
+430 k=asc(a$)and127:ifk=81thenifl=81then520:rem qq quits
+440 l=k:j=-(k=68)-2*(k=83)-3*(k=65):ifj=0thenifk<>87then460:rem w 87, d 68, s 83, a 65
+450 ifj<>((d+2)and3)thend=j:rem no reversing
+460 n=p+o%(d):ifpeek(s+n)<>32then480:rem step; anything but blank ends the game
+470 pokes+p,32:pokec+n,1:pokes+n,40:p=n:goto410
+
+480 poke214,18:print:printtab(11)"{reverse on}{wht}game over";:rem game over, on the score line
+
 500 poke198,0:rem wait for a key, then restore and end
 510 geta$:ifa$=""then510
 520 poke36869,240:poke52,30:poke56,30:clr:poke36879,27:print"{clr}{blu}";:end
