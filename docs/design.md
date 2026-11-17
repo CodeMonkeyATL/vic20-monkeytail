@@ -66,7 +66,9 @@ The 8 corners are only 4 pictures (up-to-right looks like left-to-down, and so o
 
 ### Title
 
-Built 2026-11-15 on row 1, framed in bricks: `CODE` and `ATL` white, `MONKEY` yellow, a banana, `TAIL` green like the body (2026-11-16; columns 2-19). The banana is our code 41, printed with `{reverse off}` as `)` (screen code 41); all other text stays reversed. See "Screen layout".
+Row 1, framed in bricks, columns 1-20 exactly: `CODE` banana `MONKEY` banana `ATL` banana `TAIL` (the user's, 2026-11-16). The words are **inverted letters, black on solid tiles**: `CODE` and `ATL` on cyan (white was too saturated), `MONKEY` and `TAIL` on green like the body; the yellow bananas separate them. Each word reads as one bar, since the ROM letters' empty edges become solid when inverted.
+
+The letters are made at start (line 220): the ROM's letters A-Z (character ROM at 32768, codes 1-26) are copied inverted (`255-peek`) into our codes 1-26 at 7176-7383, memory already reserved for the character set. The title is printed without `{reverse on}`, so its letters land on codes 1-26 and the bananas on 41 (`)`). The letters' black is the screen background: a cell has only one color of its own, so the letter color can't differ per word. All other text is still printed reversed, from the normal ROM letters at 128-255. See "Screen layout".
 
 ## The game
 
@@ -79,7 +81,7 @@ The screen is 22×23 characters; screen RAM starts at 7680 (`s`) and color RAM a
 | Rows | Content |
 |---|---|
 | 0 | bricks |
-| 1 | brick, space, title (columns 2-19), bricks at column 21 |
+| 1 | brick, title (columns 1-20), brick |
 | 2 | bricks |
 | 3-17 | the play area: columns 1-20 (20×15), bricks at columns 0 and 21 (and on every row from 1 to 21) |
 | 18 | bricks |
@@ -101,12 +103,13 @@ No arrays besides the step table `o%(0-3)` (-22, 1, 22, -1 for up, right, down, 
 | Lines | Routine |
 |---|---|
 | 100-130 | init: top of BASIC to 7424 (first, since its `clr` wipes variables), addresses, steps, empty the keyboard buffer |
-| 200-210 | character set: reads `code, 8 bytes` groups until -1 and pokes them at 7168+code×8 |
+| 200-220 | character set: reads `code, 8 bytes` groups until -1 and pokes them at 7168+code×8; then the inverted letters for the title (220) |
 | 300-370 | board: colors and RAM character set on, bricks, title, score and help |
 | 400-470 | play: the monkey starts at row 10, columns 8-10 (tip, body, head) moving right; each move waits (410), reads at most one key, moves the tail end (460-462), steps the head, and ends the game on any cell that isn't blank |
-| 480-484 | game over: `GAME OVER` on the score line (row 19, column 12); the monkey turns red one cell at a time from the head to the tail end, then falls into 500 |
+| 480-488 | game over: the time played into `z`, `GAME OVER` on the score line (row 19, column 12); the monkey turns red one cell at a time from the head to the tail end; then `TIME m:ss` over `WASD=MOVE` (row 20), and falls into 500 |
 | 500-520 | wait for a key pressed twice: `rr` goes back to 300 (board and a new monkey; the character set is still loaded), `qq` falls into 520; other keys are ignored. 520 puts the ROM character set and top of BASIC back and ends. During play, `qq` jumps straight to 520 and `rr` to 300 (435); the redraw takes about a second |
 | 600-610 | banana: a random cell of the play area (row 3-17, column 1-20: `67+int(rnd(1)*15)*22+int(rnd(1)*20)`), picked again until it's blank, then a yellow banana; no reachability check (an open board, and the tail always moves) |
+| 700 | eat: 3 more cells to grow, score +1, a new banana, the score printed after `SCORE` |
 | 1000-1050 | character data: blank, head, banana, brick, the 16 tail pieces |
 
 ## Variables
@@ -126,6 +129,8 @@ No arrays besides the step table `o%(0-3)` (-22, 1, 22, -1 for up, right, down, 
 | `t` | also the way out of a tail cell, `peek and 3`; the next cell's code; the cell being turned red at game over |
 | `g` | moves left to grow: the tail end stays put while it's above 0 |
 | `b` | the banana's screen offset |
+| `v` | the score: bananas eaten |
+| `z` | `ti` at the start of a game; at game over, the jiffies played |
 | `j` | the direction a key asks for |
 | `k` | the key's code, `asc(a$)and127` (Shift ignored); also a character code while loading |
 | `l` | the previous key, for `qq` and `rr` |
@@ -137,7 +142,9 @@ No arrays besides the step table `o%(0-3)` (-22, 1, 22, -1 for up, right, down, 
 - **No reversing:** `ifj<>((d+2)and3)thend=j`; `(d+2)and3` is the opposite direction. It matters once the tail exists.
 - **The tail follows (step 3, 2026-11-16):** each move first steps the tail end: `t=peek(s+q)and3` is its way out, the cell is blanked, `q` steps by `o%(t)`, and the new end cell is redrawn as a tip with the same way out: `48+((t+2)and3)*4+t`, the U-turn code (`in` opposite `out`). Then the head steps; the cell it leaves gets `48+e*4+d` in yellow (7), and `e=d`. The crash check comes first, so a crash leaves the whole monkey on screen; the one non-blank cell that's safe is the tail end (`n=q`), which moves out of the way in the same move, as in other snake games. (Moving the tail first made the monkey shrink by a cell at game over.)
 - **Bananas and growth (step 4, 2026-11-16):** the next cell is read once into `t`. A banana (41) adds 3 to `g`, places the next banana and skips the crash check. (3 felt a little aggressive at first, but the user lasted a long time with it, 2026-11-16.) While `g>0`, each move takes 1 from it and leaves the tail end where it is, so a banana makes the monkey 3 cells longer over 3 moves. The tail end is only a safe cell when it's about to move (`g=0`). `rnd(-ti)` at start seeds the random numbers from the clock, so each game's bananas differ.
-- **Colors:** the head white, the body green (5), bananas yellow (2026-11-16: the body was yellow, like the bananas).
+- **Score (2026-11-16):** `v`, bananas eaten, printed by the eat routine (700) with `printtab(6)` on row 19: BASIC prints a positive number with a leading space, which lands on the space after `SCORE` (column 6), so the digits start at column 7, where the board's `0` is. The board prints `SCORE 0` itself, so a restart shows 0 again; the score stays on screen at game over.
+- **Time played (2026-11-16):** `z=ti` at the start; at the crash `z=ti-z` is the jiffies (1/60 s) played, before the death walk, so the walk doesn't count. After the walk, `TIME m:ss` replaces `WASD=MOVE` (no longer needed); the seconds are `right$(str$(100+sec),2)`, a cheap leading zero. It isn't shown during play (the user's choice). A restart redraws the help. It'll be a leaderboard field later.
+- **Colors:** the head and bananas yellow, the body green (5) (2026-11-16: the body was yellow, then the head white).
 - **Turning red at game over (482-484):** the codes are read backwards. The cell behind the head is `p-o%(e)`; from any body cell, `int(peek/4)and3` is its `in` direction, so the cell before it is `t-o%(in)`. Each cell's color goes to red (2) after a short delay (`fori=1to60`), until the tail end `q`.
 - **Crash:** a single `peek` of the next cell: anything but blank (32) ends the game, which covers the walls now and the tail later. A banana is checked first (see above).
 - **Speed:** a delay loop, `fori=1to400:next` (410), about 2-3 moves a second, the starting speed; it will shrink as the game gets harder. 150 was "much too fast to start out" (the user, 2026-11-15: more like the speed after eating a lot).
