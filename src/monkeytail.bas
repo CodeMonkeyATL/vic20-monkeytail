@@ -1,7 +1,7 @@
 100 poke51,0:poke52,29:poke55,0:poke56,29:clr:rem init: basic top 7424, charset above
 110 s=7680:c=38400:dimo%(3)
 120 o%(0)=-22:o%(1)=1:o%(2)=22:o%(3)=-1
-130 poke198,0
+130 poke198,0:t=rnd(-ti)
 
 200 readk:ifk<0then300:rem charset: a code, then its 8 bytes
 210 fori=0to7:readt:poke7168+k*8+i,t:next:goto200
@@ -10,25 +10,29 @@
 310 fori=0to21:pokec+i,2:pokes+i,42:pokec+44+i,2:pokes+44+i,42
 320 pokec+396+i,2:pokes+396+i,42:pokec+484+i,2:pokes+484+i,42:next
 330 fori=22to462step22:pokec+i,2:pokes+i,42:pokec+i+21,2:pokes+i+21,42:next
-340 print"{home}{down}{right}{right}{reverse on}{wht}code{yel}monkey{wht}atl{yel}tail"
+340 print"{home}{down}{right}{right}{reverse on}{wht}code{yel}monkey{wht}atl{reverse off}{yel}){reverse on}{grn}tail"
 350 poke214,18:print:print"{reverse on}{right}{cyn}score {wht}0"
 360 print"{reverse on}{right}{cyn}wasd{wht}=move {cyn}rr{wht}=restart"
 370 printtab(4)"{reverse on}{cyn}m{wht}=mute {cyn}qq{wht}=quit";
 
-400 p=230:d=1:e=1:q=228:l=0:pokec+p,1:pokes+p,40:poke198,0:rem play: head mid-field, moving right
-405 fori=228to229:pokec+i,7:next:pokes+228,61:pokes+229,53:rem tail tip and one body cell
+400 p=230:d=1:e=1:q=228:l=0:g=0:pokec+p,1:pokes+p,40:poke198,0:rem play: head mid-field, moving right
+405 fori=228to229:pokec+i,5:next:pokes+228,61:pokes+229,53:gosub600:rem tail tip, one body cell, a banana
 410 fori=1to400:next:rem delay, tuned by play
 420 geta$:ifa$=""then460
 430 k=asc(a$)and127:ifk=81thenifl=81then520:rem qq quits
 435 ifk=82thenifl=82then300:rem rr restarts
 440 l=k:j=-(k=68)-2*(k=83)-3*(k=65):ifj=0thenifk<>87then460:rem w 87, d 68, s 83, a 65
 450 ifj<>((d+2)and3)thend=j:rem no reversing
-460 n=p+o%(d):ifpeek(s+n)<>32thenifn<>qthen480:rem only blank or the tail end is safe
-462 t=peek(s+q)and3:pokes+q,32:q=q+o%(t):rem tail end follows its way out
-465 t=peek(s+q)and3:pokes+q,48+((t+2)and3)*4+t:rem new end becomes a tip
-470 pokec+p,7:pokes+p,48+e*4+d:e=d:pokec+n,1:pokes+n,40:p=n:goto410:rem old head cell joins the body
+460 n=p+o%(d):t=peek(s+n):ift=41theng=g+3:gosub600:goto464:rem banana: grow 3
+462 ift<>32thenifn<>qorg>0then480:rem blank is safe, or the tail end if it moves
+464 ifg>0theng=g-1:goto470:rem growing: the tail end stays
+466 t=peek(s+q)and3:pokes+q,32:q=q+o%(t):rem tail end follows its way out
+468 t=peek(s+q)and3:pokes+q,48+((t+2)and3)*4+t:rem new end becomes a tip
+470 pokec+p,5:pokes+p,48+e*4+d:e=d:pokec+n,1:pokes+n,40:p=n:goto410:rem old head cell joins the body
 
 480 poke214,18:print:printtab(12)"{reverse on}{wht}game over";:rem game over, on the score line
+482 pokec+p,2:t=p-o%(e):rem the monkey turns red, head to tail
+484 fori=1to60:next:pokec+t,2:ift<>qthent=t-o%(int(peek(s+t)/4)and3):goto484
 
 500 poke198,0:l=0:rem wait for rr or qq
 510 geta$:ifa$=""then510
@@ -36,6 +40,9 @@
 514 ifk=82then300:rem rr restarts
 516 ifk<>81then510
 520 poke36869,240:poke52,30:poke56,30:clr:poke36879,27:print"{clr}{blu}";:end
+
+600 b=67+int(rnd(1)*15)*22+int(rnd(1)*20):ifpeek(s+b)<>32then600:rem banana, random empty cell
+610 pokec+b,7:pokes+b,41:return
 
 1000 data32,0,0,0,0,0,0,0,0:rem blank
 1002 data40,60,126,219,255,126,66,36,24:rem head: monkey face
