@@ -4,7 +4,7 @@ Known issues and ideas. Nothing here is scheduled; the user picks what's worth d
 
 ## Next
 
-- **The game loop, in small reviewed steps.** Controls, speed, growth, score and banana placement were decided 2026-11-15 (design.md, "Play"). Done: the board, the moving head (steps 1-2). Next: the tail follows, by the codes on the screen (step 3), then bananas and growth, then the score.
+- **The game loop, in small reviewed steps.** Controls, speed, growth, score and banana placement were decided 2026-11-15 (design.md, "Play"). Done: the board, the moving head, the tail following by the codes on the screen (steps 1-3). Next: bananas and growth (step 4), then the score.
 - **Speed rising as the game gets harder** (decided; the user, 2026-11-16). Starts at line 410's delay of 400. To decide: what triggers a speed-up (each banana, every N bananas, a level) and the fastest delay.
 
 ## Progression ideas (2026-11-15)

@@ -12,22 +12,29 @@
 330 fori=22to462step22:pokec+i,2:pokes+i,42:pokec+i+21,2:pokes+i+21,42:next
 340 print"{home}{down}{right}{right}{reverse on}{wht}code{yel}monkey{wht}atl{yel}tail"
 350 poke214,18:print:print"{reverse on}{right}{cyn}score {wht}0"
-360 printtab(14)"{reverse on}{cyn}qq{wht}=quit"
-370 print"{reverse on}{right}{cyn}wasd{wht}=move     {cyn}m{wht}=mute";
+360 print"{reverse on}{right}{cyn}wasd{wht}=move {cyn}rr{wht}=restart"
+370 printtab(4)"{reverse on}{cyn}m{wht}=mute {cyn}qq{wht}=quit";
 
-400 p=230:d=1:l=0:pokec+p,1:pokes+p,40:poke198,0:rem play: head mid-field, moving right
+400 p=230:d=1:e=1:q=228:l=0:pokec+p,1:pokes+p,40:poke198,0:rem play: head mid-field, moving right
+405 fori=228to229:pokec+i,7:next:pokes+228,61:pokes+229,53:rem tail tip and one body cell
 410 fori=1to400:next:rem delay, tuned by play
 420 geta$:ifa$=""then460
 430 k=asc(a$)and127:ifk=81thenifl=81then520:rem qq quits
+435 ifk=82thenifl=82then300:rem rr restarts
 440 l=k:j=-(k=68)-2*(k=83)-3*(k=65):ifj=0thenifk<>87then460:rem w 87, d 68, s 83, a 65
 450 ifj<>((d+2)and3)thend=j:rem no reversing
-460 n=p+o%(d):ifpeek(s+n)<>32then480:rem step; anything but blank ends the game
-470 pokes+p,32:pokec+n,1:pokes+n,40:p=n:goto410
+460 n=p+o%(d):ifpeek(s+n)<>32thenifn<>qthen480:rem only blank or the tail end is safe
+462 t=peek(s+q)and3:pokes+q,32:q=q+o%(t):rem tail end follows its way out
+465 t=peek(s+q)and3:pokes+q,48+((t+2)and3)*4+t:rem new end becomes a tip
+470 pokec+p,7:pokes+p,48+e*4+d:e=d:pokec+n,1:pokes+n,40:p=n:goto410:rem old head cell joins the body
 
 480 poke214,18:print:printtab(12)"{reverse on}{wht}game over";:rem game over, on the score line
 
-500 poke198,0:rem wait for a key, then restore and end
+500 poke198,0:l=0:rem wait for rr or qq
 510 geta$:ifa$=""then510
+512 k=asc(a$)and127:ifk<>lthenl=k:goto510
+514 ifk=82then300:rem rr restarts
+516 ifk<>81then510
 520 poke36869,240:poke52,30:poke56,30:clr:poke36879,27:print"{clr}{blu}";:end
 
 1000 data32,0,0,0,0,0,0,0,0:rem blank
