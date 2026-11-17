@@ -3,15 +3,15 @@
 120 o%(0)=-22:o%(1)=1:o%(2)=22:o%(3)=-1
 130 poke198,0:t=rnd(-ti)
 
-200 readk:ifk<0then220:rem charset: a code, then its 8 bytes
+200 readk:ifk<0then300:rem charset: a code, then its 8 bytes
 210 fori=0to7:readt:poke7168+k*8+i,t:next:goto200
-220 fori=8to215:poke7168+i,255-peek(32768+i):next:rem letters a-z inverted, codes 1-26
 
 300 poke36879,8:poke36869,255:print"{clr}";:rem board: bricks, title, help
 310 fori=0to21:pokec+i,2:pokes+i,42:pokec+44+i,2:pokes+44+i,42
 320 pokec+396+i,2:pokes+396+i,42:pokec+484+i,2:pokes+484+i,42:next
 330 fori=22to462step22:pokec+i,2:pokes+i,42:pokec+i+21,2:pokes+i+21,42:next
-340 print"{home}{down}{right}{cyn}code{yel}){grn}monkey{yel}){cyn}atl{yel}){grn}tail"
+340 print"{home}{down}{right}{reverse on}{cyn}code{reverse off}{yel}){reverse on}{grn}monkey{reverse off}{yel})";
+345 print"{reverse on}{cyn}atl{reverse off}{yel}){reverse on}{grn}tail"
 350 poke214,18:print:print"{reverse on}{right}{cyn}score {wht}0"
 360 print"{reverse on}{right}{cyn}wasd{wht}=move {cyn}rr{wht}=restart"
 370 printtab(4)"{reverse on}{cyn}m{wht}=mute {cyn}qq{wht}=quit";
