@@ -15,7 +15,7 @@ A snake game: the monkey moves on its own, the player steers, each banana makes 
 Decided 2026-11-15:
 
 - **Controls:** WASD, as in MonkeySwap.
-- **Speed:** fixed. The monkey moves at one rate all game, set by a delay in the main loop and tuned by playing.
+- **Speed:** rises as the game gets harder (corrected 2026-11-16; "fixed" was a misreading). It's set by a delay in the main loop, starting at 400 (approved by play 2026-11-15); how fast it shrinks, and at what, is still to decide.
 - **Growth:** each banana adds **3 cells**: the tail end stays put for the next 3 moves.
 - **Score:** bananas eaten. That's what the leaderboard shows.
 - **Bananas:** placed in a random cell inside the walls, picked again with `peek` until it's empty.
@@ -84,11 +84,11 @@ The screen is 22×23 characters; screen RAM starts at 7680 (`s`) and color RAM a
 | 3-17 | the play area: columns 1-20 (20×15), bricks at columns 0 and 21 (and on every row from 1 to 21) |
 | 18 | bricks |
 | 19 | `SCORE 0` from column 1, on its own: `SCORE` cyan, the score white |
-| 20 | `QQ=QUIT` at columns 12-18 (`printtab(12)`) |
-| 21 | `WASD=MOVE` from column 1, `M=MUTE` at columns 13-18; printed with `;` |
-
-The keys are cyan and the rest white; the `=` of `QQ=QUIT` and `M=MUTE` line up in column 14 (the user's layout, 2026-11-15).
+| 20 | `QQ=QUIT` at columns 14-20 (`printtab(14)`) |
+| 21 | `WASD=MOVE` from column 1, `M=MUTE` at columns 15-20; printed with `;` |
 | 22 | bricks |
+
+The keys are cyan and the rest white. `QQ=QUIT` and `M=MUTE` are right-aligned against the wall, their `=` lined up in column 16; `GAME OVER` takes columns 12-20 of the score line (the user's layout, 2026-11-15, moved right 2026-11-16).
 
 Rows 19-21 are framed in bricks at columns 0 and 21, like the title (2026-11-15), so the screen is one brick frame with three panels. Bricks are code 42 in red (2), each cell's color poked before its brick so none shows white first. They're poked, never printed, so row 22's last cell can't scroll the screen. The text is reached with `poke214,18:print` (`meta/docs/routines.md`, "Cursor to a row, cheaply") and starts with `{right}`, which steps over the brick at column 0.
 
@@ -104,7 +104,7 @@ No arrays besides the step table `o%(0-3)` (-22, 1, 22, -1 for up, right, down, 
 | 200-210 | character set: reads `code, 8 bytes` groups until -1 and pokes them at 7168+code×8 |
 | 300-370 | board: colors and RAM character set on, bricks, title, score and help |
 | 400-470 | play: the head starts at row 10, column 10 moving right; each move waits (410), reads at most one key, steps, and ends the game on any cell that isn't blank |
-| 480 | game over: `GAME OVER` on the score line (row 19, column 11), then falls into 500 |
+| 480 | game over: `GAME OVER` on the score line (row 19, column 12), then falls into 500 |
 | 500-520 | for now: wait for a key, put the ROM character set and top of BASIC back, end; `qq` goes straight to 520 |
 | 1000-1050 | character data: blank, head, banana, brick, the 16 tail pieces |
 
@@ -130,7 +130,7 @@ No arrays besides the step table `o%(0-3)` (-22, 1, 22, -1 for up, right, down, 
 - **Keys:** `j=-(k=68)-2*(k=83)-3*(k=65)` turns `d`, `s`, `a` into 1, 2, 3 and anything else into 0; a 0 counts as up only when the key was `w` (87). A key pressed between moves waits in the keyboard buffer, so quick turns queue up instead of being lost.
 - **No reversing:** `ifj<>((d+2)and3)thend=j`; `(d+2)and3` is the opposite direction. It matters once the tail exists.
 - **Crash:** a single `peek` of the next cell: anything but blank (32) ends the game, which covers the walls now and the tail later. Bananas will need their own check first.
-- **Speed:** a delay loop, `fori=1to400:next` (410), about 2-3 moves a second. 150 was "much too fast to start out" (the user, 2026-11-15: more like the speed after eating a lot).
+- **Speed:** a delay loop, `fori=1to400:next` (410), about 2-3 moves a second, the starting speed; it will shrink as the game gets harder. 150 was "much too fast to start out" (the user, 2026-11-15: more like the speed after eating a lot).
 
 ## Sound
 

@@ -12,8 +12,8 @@
 330 fori=22to462step22:pokec+i,2:pokes+i,42:pokec+i+21,2:pokes+i+21,42:next
 340 print"{home}{down}{right}{right}{reverse on}{wht}code{yel}monkey{wht}atl{yel}tail"
 350 poke214,18:print:print"{reverse on}{right}{cyn}score {wht}0"
-360 printtab(12)"{reverse on}{cyn}qq{wht}=quit"
-370 print"{reverse on}{right}{cyn}wasd{wht}=move   {cyn}m{wht}=mute";
+360 printtab(14)"{reverse on}{cyn}qq{wht}=quit"
+370 print"{reverse on}{right}{cyn}wasd{wht}=move     {cyn}m{wht}=mute";
 
 400 p=230:d=1:l=0:pokec+p,1:pokes+p,40:poke198,0:rem play: head mid-field, moving right
 410 fori=1to400:next:rem delay, tuned by play
@@ -24,7 +24,7 @@
 460 n=p+o%(d):ifpeek(s+n)<>32then480:rem step; anything but blank ends the game
 470 pokes+p,32:pokec+n,1:pokes+n,40:p=n:goto410
 
-480 poke214,18:print:printtab(11)"{reverse on}{wht}game over";:rem game over, on the score line
+480 poke214,18:print:printtab(12)"{reverse on}{wht}game over";:rem game over, on the score line
 
 500 poke198,0:rem wait for a key, then restore and end
 510 geta$:ifa$=""then510
