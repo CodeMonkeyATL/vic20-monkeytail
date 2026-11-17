@@ -66,9 +66,9 @@ The 8 corners are only 4 pictures (up-to-right looks like left-to-down, and so o
 
 ### Title
 
-Row 1, framed in bricks, columns 1-20 exactly: `CODE` banana `MONKEY` banana `ATL` banana `TAIL` (the user's, 2026-11-16). The words are **inverted letters, black on solid tiles**: `CODE` and `ATL` on cyan (white was too saturated), `MONKEY` and `TAIL` on green like the body; the yellow bananas separate them. Each word reads as one bar, since the ROM letters' empty edges become solid when inverted.
+Row 1, framed in bricks, columns 1-20 exactly: `CODE` banana `MONKEY` banana `ATL` banana `TAIL` (the user's, 2026-11-16). `CODE` and `ATL` cyan, `MONKEY` and `TAIL` green like the body, yellow bananas between: the words are reversed text like the rest, and each banana is printed with `{reverse off}` as `)` (our code 41).
 
-The letters are made at start (line 220): the ROM's letters A-Z (character ROM at 32768, codes 1-26) are copied inverted (`255-peek`) into our codes 1-26 at 7176-7383, memory already reserved for the character set. The title is printed without `{reverse on}`, so its letters land on codes 1-26 and the bananas on 41 (`)`). The letters' black is the screen background: a cell has only one color of its own, so the letter color can't differ per word. All other text is still printed reversed, from the normal ROM letters at 128-255. See "Screen layout".
+**Inverted tiles were tried and dropped (2026-11-16):** black letters on solid colored tiles, made by copying the ROM letters inverted into codes 1-26 (7176-7383). Those codes lie below the top of BASIC (7424), so BASIC's strings, built downward from the top (every `get a$`, the time's `str$`), overwrote them during play: `Y` broke first, then `T`. Protecting them would have cost 256 bytes. **Only codes 32-63 are safe for our characters.** A restart also printed the title with reverse still on (reverse mode lasts until a carriage return, and the help and time lines end with `;`); each print of the title now sets reverse on or off itself. See "Screen layout".
 
 ## The game
 
@@ -103,7 +103,7 @@ No arrays besides the step table `o%(0-3)` (-22, 1, 22, -1 for up, right, down, 
 | Lines | Routine |
 |---|---|
 | 100-130 | init: top of BASIC to 7424 (first, since its `clr` wipes variables), addresses, steps, empty the keyboard buffer |
-| 200-220 | character set: reads `code, 8 bytes` groups until -1 and pokes them at 7168+code×8; then the inverted letters for the title (220) |
+| 200-210 | character set: reads `code, 8 bytes` groups until -1 and pokes them at 7168+code×8 |
 | 300-370 | board: colors and RAM character set on, bricks, title, score and help |
 | 400-470 | play: the monkey starts at row 10, columns 8-10 (tip, body, head) moving right; each move waits (410), reads at most one key, moves the tail end (460-462), steps the head, and ends the game on any cell that isn't blank |
 | 480-488 | game over: the time played into `z`, `GAME OVER` on the score line (row 19, column 12); the monkey turns red one cell at a time from the head to the tail end; then `TIME m:ss` over `WASD=MOVE` (row 20), and falls into 500 |
