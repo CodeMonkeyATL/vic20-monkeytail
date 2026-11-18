@@ -16,9 +16,9 @@
 360 print"{reverse on}{right}{cyn}wasd{wht}=move {cyn}rr{wht}=restart"
 370 printtab(4)"{reverse on}{cyn}m{wht}=mute {cyn}qq{wht}=quit";
 
-400 p=230:d=1:e=1:q=228:l=0:g=0:v=0:z=ti:pokec+p,7:pokes+p,40:poke198,0:rem play: head mid-field, moving right
+400 p=230:d=1:e=1:q=228:l=0:g=0:v=0:w=400:z=ti:pokec+p,7:pokes+p,40:poke198,0:rem play: head mid-field, moving right
 405 fori=228to229:pokec+i,5:next:pokes+228,61:pokes+229,53:gosub600:rem tail tip, one body cell, a banana
-410 fori=1to400:next:rem delay, tuned by play
+410 fori=1tow:next:rem delay: the speed
 420 geta$:ifa$=""then460
 430 k=asc(a$)and127:ifk=81thenifl=81then520:rem qq quits
 435 ifk=82thenifl=82then300:rem rr restarts
@@ -47,7 +47,9 @@
 600 b=67+int(rnd(1)*15)*22+int(rnd(1)*20):ifpeek(s+b)<>32then600:rem banana, random empty cell
 610 pokec+b,7:pokes+b,41:return
 
-700 g=g+3:v=v+1:gosub600:poke214,18:print:printtab(6)"{reverse on}{wht}"v:return:rem eat: grow, score
+700 g=g+3:v=v+1:gosub600:poke214,18:print:printtab(6)"{reverse on}{wht}"v:rem eat: grow, score
+705 ifv-int(v/3)*3=0thenw=w-8:ifw<150thenw=150:rem every 3rd banana: faster, to a floor
+710 return
 
 1000 data32,0,0,0,0,0,0,0,0:rem blank
 1002 data40,60,126,219,255,126,66,36,24:rem head: monkey face
