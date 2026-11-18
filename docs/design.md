@@ -15,7 +15,7 @@ A snake game: the monkey moves on its own, the player steers, each banana makes 
 Decided 2026-11-15:
 
 - **Controls:** WASD, as in MonkeySwap.
-- **Speed:** rises as the game gets harder (corrected 2026-11-16; "fixed" was a misreading). It's set by a delay in the main loop, starting at 400 (approved by play 2026-11-15); how fast it shrinks, and at what, is still to decide.
+- **Speed:** rises as the game gets harder (corrected 2026-11-16; "fixed" was a misreading). It's set by a delay in the main loop, starting at 400 (approved by play 2026-11-15), 8 less every 3 bananas, down to 150 (2026-11-17, for now).
 - **Growth:** each banana adds **3 cells**: the tail end stays put for the next 3 moves.
 - **Score:** bananas eaten. That's what the leaderboard shows.
 - **Bananas:** placed in a random cell inside the walls, picked again with `peek` until it's empty.
@@ -109,7 +109,7 @@ No arrays besides the step table `o%(0-3)` (-22, 1, 22, -1 for up, right, down, 
 | 480-488 | game over: the time played into `z`, `GAME OVER` on the score line (row 19, column 12); the monkey turns red one cell at a time from the head to the tail end; then `TIME m:ss` over `WASD=MOVE` (row 20), and falls into 500 |
 | 500-520 | wait for a key pressed twice: `rr` goes back to 300 (board and a new monkey; the character set is still loaded), `qq` falls into 520; other keys are ignored. 520 puts the ROM character set and top of BASIC back and ends. During play, `qq` jumps straight to 520 and `rr` to 300 (435); the redraw takes about a second |
 | 600-610 | banana: a random cell of the play area (row 3-17, column 1-20: `67+int(rnd(1)*15)*22+int(rnd(1)*20)`), picked again until it's blank, then a yellow banana; no reachability check (an open board, and the tail always moves) |
-| 700 | eat: 3 more cells to grow, score +1, a new banana, the score printed after `SCORE` |
+| 700-710 | eat: 3 more cells to grow, score +1, a new banana, the score printed after `SCORE`; every 3rd banana a shorter delay |
 | 1000-1050 | character data: blank, head, banana, brick, the 16 tail pieces |
 
 ## Variables
@@ -130,6 +130,7 @@ No arrays besides the step table `o%(0-3)` (-22, 1, 22, -1 for up, right, down, 
 | `g` | moves left to grow: the tail end stays put while it's above 0 |
 | `b` | the banana's screen offset |
 | `v` | the score: bananas eaten |
+| `w` | the delay between moves (the speed): 400 down to 150 |
 | `z` | `ti` at the start of a game; at game over, the jiffies played |
 | `j` | the direction a key asks for |
 | `k` | the key's code, `asc(a$)and127` (Shift ignored); also a character code while loading |
@@ -147,7 +148,7 @@ No arrays besides the step table `o%(0-3)` (-22, 1, 22, -1 for up, right, down, 
 - **Colors:** the head and bananas yellow, the body green (5) (2026-11-16: the body was yellow, then the head white).
 - **Turning red at game over (482-484):** the codes are read backwards. The cell behind the head is `p-o%(e)`; from any body cell, `int(peek/4)and3` is its `in` direction, so the cell before it is `t-o%(in)`. Each cell's color goes to red (2) after a short delay (`fori=1to60`), until the tail end `q`.
 - **Crash:** a single `peek` of the next cell: anything but blank (32) ends the game, which covers the walls now and the tail later. A banana is checked first (see above).
-- **Speed:** a delay loop, `fori=1to400:next` (410), about 2-3 moves a second, the starting speed; it will shrink as the game gets harder. 150 was "much too fast to start out" (the user, 2026-11-15: more like the speed after eating a lot).
+- **Speed:** a delay loop, `fori=1tow:next` (410). `w` starts at 400, about 2-3 moves a second; every 3rd banana takes 8 off it (705: `v-int(v/3)*3=0` means "`v` divides by 3"), down to a floor of 150, reached at 96 bananas (step 6, 2026-11-17). Start, step, interval and floor are the user's "for now" values, and could be set by harder modes. 150 was "much too fast to start out" (the user, 2026-11-15: more like the speed after eating a lot).
 
 ## Sound
 
