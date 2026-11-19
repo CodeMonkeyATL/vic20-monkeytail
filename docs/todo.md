@@ -4,7 +4,7 @@ Known issues and ideas. Nothing here is scheduled; the user picks what's worth d
 
 ## Next
 
-- **The game loop, in small reviewed steps.** Controls, speed, growth, score and banana placement were decided 2026-11-15 (design.md, "Play"). Done: the board, the moving head, the tail following by the codes on the screen (steps 1-3), bananas and growth (step 4), the score (step 5), the speed rising (step 6), sounds and mute (step 7). Next: the launcher handoff.
+- **The game loop, in small reviewed steps.** Controls, speed, growth, score and banana placement were decided 2026-11-15 (design.md, "Play"). Done: the board, the moving head, the tail following by the codes on the screen (steps 1-3), bananas and growth (step 4), the score (step 5), the speed rising (step 6), sounds and mute (step 7), the launcher handoff (step 8). Next: the launcher's mock list and the service seed need game 3.
 - **Modes with a harder start (the user, 2026-11-17):** the speed's start (400), step (8), interval (every 3 bananas) and floor (150) could be parameters that a mode sets, along with the inner walls.
 
 ## Progression ideas (2026-11-15)
@@ -19,6 +19,5 @@ Known issues and ideas. Nothing here is scheduled; the user picks what's worth d
 ## Later
 
 - The title line, framed in bricks (design.md, "Title").
-- The launcher handoff and leaderboard fields, as in 2up11 and MonkeySwap.
 - Sounds: an eat sound and a crash sound (`meta/docs/routines.md` and MonkeySwap's `src/soundlib.bas` first).
 - Variants, if memory allows: walls that wrap around, or a faster speed.
