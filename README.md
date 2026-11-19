@@ -2,20 +2,30 @@
 
 MonkeyTail is a snake game for the **unexpanded VIC-20**, written in Commodore BASIC V2. A monkey eats bananas, and its tail grows behind it.
 
-## features (planned)
+## features
 
-- a monkey whose tail grows with every banana
-- the tail drawn with custom characters: chevrons that show which way it's moving, and a tapered tip
-- walls end the game
+- a monkey whose tail grows three cells with every banana
+- the tail drawn with custom characters: chevrons that show which way it's moving, and a closed tip
+- the speed rises in steps: a little faster every third banana
+- at game over the monkey turns red from head to tail, replaying the path it took, to a Shepard-like sound
+- score and time played; online leaderboards through the CodeMonkeyATL launcher (the game leaves its score and time at game over, and the launcher posts them the next time it runs)
 - runs on a stock VIC-20 with no memory expansion
 
 ## how to play
 
-Steer the monkey to the bananas. Hitting a wall or your own tail ends the game. Controls aren't decided yet.
+Steer the monkey to the bananas. Each one adds a point and makes the tail longer. Hitting a wall or your own tail ends the game.
+
+| Key | Action |
+|---|---|
+| `w` `a` `s` `d` | up, left, down, right (the monkey can't turn back on itself) |
+| `r` `r` | restart (`r` twice in a row), at any time |
+| `q` `q` | quit (`q` twice in a row); started from the launcher, go back to it |
+| `m` | mute; press again for sound (`UTE` turns red while muted) |
 
 ## screenshots
 
 ![gameplay](screenshots/gameplay.png)
+![game over](screenshots/gameover.png)
 
 ## compatibility
 

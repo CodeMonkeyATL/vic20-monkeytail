@@ -16,7 +16,7 @@
 
 400 p=230:d=1:e=1:q=228:l=0:g=0:v=0:w=400:z=ti:pokec+p,7:pokes+p,40:poke198,0:rem play: head mid-field
 405 fori=228to229:pokec+i,5:next:pokes+228,61:pokes+229,53:gosub600:rem tail tip, one body cell, a banana
-407 iffthenv=35:w=268:pokes+228,32:pokes+229,32:pokes+230,32:gosub800:gosub600:rem tt: test start
+407 iffthenv=35:w=268:pokes+b,32:fori=228to230:pokes+i,32:next:gosub800:gosub600:rem tt: test start
 408 iffthenf=0:poke214,18:print:printtab(6)"{reverse on}{wht}"v
 410 fori=1tow:next:geta$:ifa$=""then460:rem delay: the speed, then a key
 430 k=asc(a$)and127:ifk=81thenifl=81then890:rem qq quits
