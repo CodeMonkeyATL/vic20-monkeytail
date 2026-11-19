@@ -17,6 +17,24 @@ $statementWords = @('end', 'for', 'next', 'data', 'input#', 'input', 'dim', 'rea
 $functionWords = @('sgn', 'int', 'abs', 'usr', 'fre', 'pos', 'sqr', 'rnd', 'log', 'exp', 'cos', 'sin', 'tan', 'atn',
     'peek', 'len', 'str$', 'val', 'asc', 'chr$', 'left$', 'right$', 'mid$')
 
+# the Plus/4's BASIC 3.5 keeps V2's tokens and adds these, in token order ($CC upward), searched after V2's
+# (the list petcat -k3 prints). Call it once, after dot-sourcing this file, for a BASIC 3.5 program.
+function Use-Basic35 {
+    $script:keywords += @(
+        'rgr', 'rclr', 'rlum', 'joy', 'rdot', 'dec', 'hex$', 'err$', 'instr', 'else', 'resume', 'trap', 'tron',
+        'troff', 'sound', 'vol', 'auto', 'pudef', 'graphic', 'paint', 'char', 'box', 'circle', 'gshape', 'sshape',
+        'draw', 'locate', 'color', 'scnclr', 'scale', 'help', 'do', 'loop', 'exit', 'directory', 'dsave', 'dload',
+        'header', 'scratch', 'collect', 'copy', 'rename', 'backup', 'delete', 'renumber', 'key', 'monitor',
+        'using', 'until', 'while'
+    )
+    # using, until and while only follow print, do or loop; check-basic.ps1 checks them on their own
+    $script:statementWords += @('else', 'resume', 'trap', 'tron', 'troff', 'sound', 'vol', 'auto', 'pudef',
+        'graphic', 'paint', 'char', 'box', 'circle', 'gshape', 'sshape', 'draw', 'locate', 'color', 'scnclr',
+        'scale', 'help', 'do', 'loop', 'exit', 'directory', 'dsave', 'dload', 'header', 'scratch', 'collect',
+        'copy', 'rename', 'backup', 'delete', 'renumber', 'key', 'monitor')
+    $script:functionWords += @('rgr', 'rclr', 'rlum', 'joy', 'rdot', 'dec', 'hex$', 'err$', 'instr')
+}
+
 # splits a line's text the way petcat and the VIC tokenize it: keywords (kw), other characters (ch),
 # strings (str, with quotes), and the text after rem or data, which isn't tokenized (rem, data; data runs to ":")
 function Get-Tokens([string]$text) {
@@ -76,11 +94,12 @@ function Get-Tokens([string]$text) {
     return , $tokens
 }
 
-# the line numbers a line's tokens jump to: goto/gosub/then targets, including "on x goto a,b,c" lists
+# the line numbers a line's tokens jump to: goto/gosub/then targets, including "on x goto a,b,c" lists,
+# and BASIC 3.5's else, trap, resume and restore with a line number (V2 never has a number after these)
 function Get-JumpTargets($tokens) {
     $code = -join ($tokens | Where-Object { $_.Type -in @('kw', 'ch') } | ForEach-Object { $_.Text })
     $result = New-Object System.Collections.Generic.List[int]
-    foreach ($m in [regex]::Matches($code, '(goto|gosub|then)\s*(\d+(\s*,\s*\d+)*)')) {
+    foreach ($m in [regex]::Matches($code, '(goto|gosub|then|else|trap|resume|restore)\s*(\d+(\s*,\s*\d+)*)')) {
         foreach ($t in ($m.Groups[2].Value -split ',')) {
             $result.Add([int]$t.Trim())
         }

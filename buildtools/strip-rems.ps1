@@ -13,6 +13,9 @@ param(
 # runs; check-basic.ps1 warns about it, since the rem belongs at the end of the routine's first code line.
 # used by build-and-run.ps1 and the CI workflow (with pwsh), so local and CI builds stay byte-identical
 . (Join-Path $PSScriptRoot 'basic-tokens.ps1')
+# a BASIC 3.5 program (name-plus4.bas) is tokenized with its own keywords, as the lint does
+. (Join-Path $PSScriptRoot 'machine.ps1')
+if ((Get-MachineForFile $BasFile).Basic -eq '3.5') { Use-Basic35 }
 
 $lines = New-Object System.Collections.Generic.List[object]
 $targets = @{}

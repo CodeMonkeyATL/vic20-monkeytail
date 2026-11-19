@@ -7,10 +7,12 @@ param(
 # it never fails the build, so it always exits 0
 # the longest editable line depends on the machine, which the file name picks (see machine.ps1)
 . (Join-Path $PSScriptRoot 'machine.ps1')
-$maxListed = (Get-MachineForFile $BasFile).MaxListed
+$machine = Get-MachineForFile $BasFile
+$maxListed = $machine.MaxListed
 
 # the keyword lists and Get-Tokens (the tokenizer) are shared with strip-rems.ps1
 . (Join-Path $PSScriptRoot 'basic-tokens.ps1')
+if ($machine.Basic -eq '3.5') { Use-Basic35 }
 
 # finds keywords that ended up where no keyword belongs, the sign that a variable name ran into a keyword
 # (tand7 is TAN d7, fori=stop has STOP, x=pto9 has TO); returns one message per problem
@@ -43,9 +45,12 @@ function Find-KeywordProblems($tokens, [string]$text) {
         $context = $text.Substring($from, [Math]::Min($text.Length, $tok.Pos + $kw.Length + 4) - $from)
         $name = $kw.ToUpperInvariant()
 
+        $previousKw = if ($t -gt 0 -and $tokens[$t - 1].Type -eq 'kw') { $tokens[$t - 1].Text } else { '' }
         if ($statementWords -contains $kw) {
-            # goto/gosub/go may follow "if x" or "on x"; any other statement keyword must start a statement
-            $allowed = $atStart -or (($kw -in @('goto', 'gosub', 'go')) -and ($seenIf -or $seenOn))
+            # goto/gosub/go may follow "if x" or "on x"; any other statement keyword must start a statement,
+            # except BASIC 3.5's getkey (GET KEY) and resume next (RESUME NEXT), which are two tokens
+            $allowed = $atStart -or (($kw -in @('goto', 'gosub', 'go')) -and ($seenIf -or $seenOn)) -or
+                ($kw -eq 'key' -and $previousKw -eq 'get') -or ($kw -eq 'next' -and $previousKw -eq 'resume')
             if (-not $allowed) {
                 $problems.Add("$name inside a statement ('$context'); a name probably ran into a keyword")
             }
@@ -57,8 +62,13 @@ function Find-KeywordProblems($tokens, [string]$text) {
             if (-not ($null -ne $next -and $next.Type -eq 'ch' -and $next.Text -eq '(')) {
                 $problems.Add("$name not followed by '(' ('$context'); a name probably ran into a keyword")
             }
-        } elseif ($kw -eq 'to' -and $statement -ne 'for' -and -not ($t -gt 0 -and $tokens[$t - 1].Text -eq 'go')) {
+        } elseif ($kw -eq 'to' -and $statement -notin @('for', 'draw', 'copy', 'rename', 'backup') -and $previousKw -ne 'go') {
+            # BASIC 3.5's draw, copy, rename and backup take a TO too
             $problems.Add("TO outside a for statement ('$context'); a name probably ran into a keyword")
+        } elseif ($kw -eq 'using' -and $statement -notin @('print', 'print#')) {
+            $problems.Add("USING outside a print statement ('$context'); a name probably ran into a keyword")
+        } elseif ($kw -in @('while', 'until') -and $statement -notin @('do', 'loop')) {
+            $problems.Add("$name outside a do or loop statement ('$context'); a name probably ran into a keyword")
         } elseif ($kw -eq 'step' -and $statement -ne 'for') {
             $problems.Add("STEP outside a for statement ('$context'); a name probably ran into a keyword")
         } elseif ($kw -eq 'then' -and -not $seenIf) {
@@ -69,8 +79,8 @@ function Find-KeywordProblems($tokens, [string]$text) {
 
         if ($kw -eq 'if') { $seenIf = $true }
         if ($kw -eq 'on') { $seenOn = $true }
-        if ($kw -eq 'then') {
-            # what follows then is a new statement (or a line number)
+        if ($kw -in @('then', 'else')) {
+            # what follows then (or BASIC 3.5's else) is a new statement (or a line number)
             $atStart = $true
             $statement = ''
             $seenIf = $false
