@@ -19,7 +19,7 @@
 407 iffthenv=35:w=268:pokes+228,32:pokes+229,32:pokes+230,32:gosub800:gosub600:rem tt: test start
 408 iffthenf=0:poke214,18:print:printtab(6)"{reverse on}{wht}"v
 410 fori=1tow:next:geta$:ifa$=""then460:rem delay: the speed, then a key
-430 k=asc(a$)and127:ifk=81thenifl=81then520:rem qq quits
+430 k=asc(a$)and127:ifk=81thenifl=81then890:rem qq quits
 435 ifk=82thenifl=82then300:rem rr restarts
 436 ifk=84thenifl=84thenf=1:goto300:rem tt: test start, not shown on screen
 437 ifk=77thenh=7-h:poke36878,h:gosub740:rem m mutes: volume 7 or 0
@@ -33,7 +33,7 @@
 
 480 z=ti-z:t=int(z/60):poke214,18:print:printtab(12)"{reverse on}{wht}game over":rem game over, time below
 481 print"{reverse on}{right}{cyn}time {wht}"mid$(str$(int(t/60)),2)":"right$(str$(100+t-int(t/60)*60),2);
-482 fori=200to140step-.5:poke36874,i:next:pokec+p,2:t=p-o%(e):x=226:y=196:rem crash, then red
+482 gosub900:fori=200to140step-.5:poke36874,i:next:pokec+p,2:t=p-o%(e):x=226:y=196:rem crash, then red
 483 poke36874,x:poke36875,y:poke36876,x:x=x-4:y=y+4:ifx<196thenx=x+30:rem up+down sound
 485 ify>226theny=y-30
 486 fori=1to20:next:pokec+t,2:ift<>qthent=t-o%(int(peek(s+t)/4)and3):goto483
@@ -43,7 +43,11 @@
 514 ifk=82then300:rem rr restarts
 515 ifk=84thenf=1:goto300:rem tt: test start
 516 ifk<>81then510
-520 poke36878,0:poke36869,240:poke52,30:poke56,30:clr:poke36879,27:print"{clr}{blu}";:end
+520 poke36878,0:poke36869,240:poke52,30:poke56,30:clr:poke36879,27:print"{clr}{blu}";
+525 ifpeek(841)=0thenend
+530 print"{reverse off}{down}{down}load"chr$(34);:fori=1topeek(842):printchr$(peek(842+i));:next:rem load the launcher
+540 printchr$(34)","peek(841)"{home}";:poke631,13:poke632,82:poke633,85
+545 poke634,78:poke635,13:poke198,5:end
 
 600 b=67+int(rnd(1)*15)*22+int(rnd(1)*20):ifpeek(s+b)<>32then600:rem banana, random empty cell
 610 pokec+b,7:pokes+b,41:return
@@ -63,6 +67,13 @@
 830 ifr/2=int(r/2)thenifu>1thend=3
 840 k=48+e*4+d:ifi=1thenk=48+((d+2)and3)*4+d
 850 pokec+t,5:pokes+t,k:e=d:t=t+o%(d):next:p=t:pokec+p,7:pokes+p,40:return
+
+890 ifpeek(841)thenifv>0thent=int((ti-z)/60):gosub900:rem qq in play: the score so far, from a launcher
+895 goto520
+
+900 ifv<1orpeek(900)=3andv<=peek(904)+256*peek(905)thenreturn:rem result: keep the best game
+910 poke900,3:poke901,252:poke902,1:poke903,2:poke904,255andv:poke905,v/256:poke906,0
+920 poke907,255andt:poke908,t/256:poke909,0:return
 
 1000 data32,0,0,0,0,0,0,0,0,40,60,126,219,255,126,66,36,24:rem blank, head
 1002 data41,3,6,6,12,28,120,224,0,42,255,136,136,136,255,34,34,34:rem banana, brick
