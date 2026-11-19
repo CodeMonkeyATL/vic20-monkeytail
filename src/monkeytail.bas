@@ -16,12 +16,9 @@
 
 400 p=230:d=1:e=1:q=228:l=0:g=0:v=0:w=400:z=ti:pokec+p,7:pokes+p,40:poke198,0:rem play: head mid-field
 405 fori=228to229:pokec+i,5:next:pokes+228,61:pokes+229,53:gosub600:rem tail tip, one body cell, a banana
-407 iffthenv=35:w=268:pokes+b,32:fori=228to230:pokes+i,32:next:gosub800:gosub600:rem tt: test start
-408 iffthenf=0:poke214,18:print:printtab(6)"{reverse on}{wht}"v
 410 fori=1tow:next:geta$:ifa$=""then460:rem delay: the speed, then a key
 430 k=asc(a$)and127:ifk=81thenifl=81then890:rem qq quits
 435 ifk=82thenifl=82then300:rem rr restarts
-436 ifk=84thenifl=84thenf=1:goto300:rem tt: test start, not shown on screen
 437 ifk=77thenh=7-h:poke36878,h:gosub740:rem m mutes: volume 7 or 0
 440 l=k:j=-(k=68)-2*(k=83)-3*(k=65):ifj=0thenifk<>87then460:rem w 87, d 68, s 83, a 65
 450 ifj<>((d+2)and3)thend=j:rem no reversing
@@ -41,7 +38,6 @@
 510 geta$:ifa$=""then510
 512 k=asc(a$)and127:ifk<>lthenl=k:goto510
 514 ifk=82then300:rem rr restarts
-515 ifk=84thenf=1:goto300:rem tt: test start
 516 ifk<>81then510
 520 poke36878,0:poke36869,240:poke52,30:poke56,30:clr:poke36879,27:print"{clr}{blu}";
 525 ifpeek(841)=0thenend
@@ -61,12 +57,6 @@
 730 return
 
 740 fori=38869to38871:pokei,1-(h=0):next:return:rem the help's "ute": red when muted, white with sound
-
-800 q=67:t=q:fori=1to108:r=int(t/22):u=t-r*22:d=2:rem tt test: a 109-cell monkey
-820 ifr/2<>int(r/2)thenifu<20thend=1
-830 ifr/2=int(r/2)thenifu>1thend=3
-840 k=48+e*4+d:ifi=1thenk=48+((d+2)and3)*4+d
-850 pokec+t,5:pokes+t,k:e=d:t=t+o%(d):next:p=t:pokec+p,7:pokes+p,40:return
 
 890 ifpeek(841)thenifv>0thent=int((ti-z)/60):gosub900:rem qq in play: the score so far, from a launcher
 895 goto520
