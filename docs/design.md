@@ -60,7 +60,7 @@ straight   corner     tail tip
 
 These drawings are the source; the program stores all 16 tail pieces ready-made as bytes (lines 1010-1040). Each drawing is turned into the other directions; the corner drawn is the clockwise turn, turning it gives the other three clockwise corners, and the four counterclockwise ones are the same drawing flipped across its diagonal (swap row and column) before turning. Turning them in BASIC at start took 35 seconds (2026-11-15), so a throwaway script did it once instead: for each `#` at row `r`, column `n`, flip (`x=r`, `y=n`) if counterclockwise, else `x=n`, `y=r`; then turn `k` times (`t=x`, `x=7-y`, `y=t`), with `k=(out-1)and3` for straights and tips, `k=(out-2+flip)and3` for corners; set bit `128>>x` of byte `y`. **When a drawing changes, regenerate the bytes the same way** (`meta/src/tailtest.bas` does it in BASIC, slowly). Head, banana and brick are first drafts.
 
-The 8 corners are only 4 pictures (up-to-right looks like left-to-down, and so on: the diamond looks the same from both ends of the bend). Their codes stay distinct, since the code carries the direction; a tightening pass could copy the bytes of the duplicates instead of storing them (about 140 bytes).
+The 8 corners are only 4 pictures (up-to-right looks like left-to-down, and so on: the diamond looks the same from both ends of the bend). Their codes stay distinct, since the code carries the direction; since 2026-11-18 the duplicates are copied from their twin at start instead of stored (`data54,-51`), which saved about 50 bytes.
 
 **Memory and text:** with `poke36869,255` the VIC reads codes 0-63 from RAM at 7168 and codes 128-255 as the normal ROM glyphs (`meta/src/chartest.bas`). Our codes 32-63 sit at 7424-7679, so the top of BASIC drops to 7424 (`poke51,0:poke52,29:poke55,0:poke56,29:clr`), costing 256 bytes. **All text has to be printed reversed** (`{reverse on}`), which puts it in codes 128-255, where it shows as normal letters.
 
@@ -102,16 +102,16 @@ No arrays besides the step table `o%(0-3)` (-22, 1, 22, -1 for up, right, down, 
 
 | Lines | Routine |
 |---|---|
-| 100-130 | init: top of BASIC to 7424 (first, since its `clr` wipes variables), addresses, steps, empty the keyboard buffer |
-| 200-210 | character set: reads `code, 8 bytes` groups until -1 and pokes them at 7168+code×8 |
+| 100-110 | init: top of BASIC to 7424 (first, since its `clr` wipes variables), addresses, steps, empty the keyboard buffer |
+| 200-210 | character set: reads `code, 8 bytes` groups until -1 and pokes them at 7168+code×8; a code followed by a negative number copies that code's 8 bytes instead (205), for the 4 corners that look like another (see above) |
 | 300-370 | board: colors and RAM character set on, bricks, title, score and help |
 | 400-470 | play: the monkey starts at row 10, columns 8-10 (tip, body, head) moving right; each move waits (410), reads at most one key, moves the tail end (460-462), steps the head, and ends the game on any cell that isn't blank |
-| 480-492 | game over: the time played into `z`, `GAME OVER` on the score line (row 19, column 12), the crash sound (481); the monkey turns red one cell at a time from the head to the tail end, with the up+down sound (482-487); then `TIME m:ss` over `WASD=MOVE` (row 20), and falls into 500 |
-| 500-520 | wait for a key pressed twice: `rr` goes back to 300 (board and a new monkey; the character set is still loaded), `qq` falls into 520; other keys are ignored. 520 puts the ROM character set and top of BASIC back and ends. During play, `qq` jumps straight to 520 and `rr` to 300 (435); the redraw takes about a second |
+| 480-487 | game over: the time played into `z`, `GAME OVER` on the score line (row 19, column 12) and `TIME m:ss` over `WASD=MOVE` (row 20) first, then the crash sound (482); the monkey turns red one cell at a time from the head to the tail end, with the up+down sound (482-486); then falls into 510 |
+| 487-520 | wait for a key pressed twice: `rr` goes back to 300 (board and a new monkey; the character set is still loaded), `qq` falls into 520; other keys are ignored. 520 puts the ROM character set and top of BASIC back and ends. During play, `qq` jumps straight to 520 and `rr` to 300 (435); the redraw takes about a second |
 | 600-610 | banana: a random cell of the play area (row 3-17, column 1-20: `67+int(rnd(1)*15)*22+int(rnd(1)*20)`), picked again until it's blank, then a yellow banana; no reachability check (an open board, and the tail always moves) |
 | 700-730 | eat: 3 more cells to grow, score +1, a new banana, the score printed after `SCORE`, the ding-ding (702, fade at 720); every 3rd banana a shorter delay |
 | 800-850 | **test start** (`tt`, hidden: not in the help): draws a 109-cell monkey snaking across rows 3-8 (the length at about 35 bananas), head at row 8 moving left; with score 35 and its delay (268), set at 407-408 when `f` is 1. For testing the death walk and late-game speed without 4.5 minutes of play. Kept for now (the user, 2026-11-17); remove before release |
-| 1000-1050 | character data: blank, head, banana, brick, the 16 tail pieces |
+| 1000-1040 | character data: blank, head, banana, brick, the 16 tail pieces, 4 of them as copies |
 
 ## Variables
 
@@ -167,9 +167,11 @@ Each sound's register and values, for tuning by ear. Picked by the user on `meta
 
 ## Memory
 
-Free memory measured with `?fre(0)` after quitting, with the date and what changed.
+Free memory measured with `?fre(0)` after quitting, with the date and what changed. Since 2026-11-18 the measure skill's `-Quit` must be `qq`: `q q` types a space between, which breaks the pair.
 
 | Date | Free | After |
 |---|---|---|
 | 2026-11-15 | 2409 (about 2100 in play) | character set and board (PRG 1176). The value after quitting includes the 256 bytes the character set gives back. |
 | 2026-11-15 | about 1800 in play (estimated from the PRG, 1488) | the help framed in bricks, layout B, the moving head |
+| 2026-11-18 | 764 after quitting; **about 325 in play** | steps 3-7 and `tt` (PRG 2821). Played: `m` twice, `tt`, the crash, death walk and game over, `qq`. Quitting runs `clr` and gives back the character set's 256 bytes, so in play is 764 − 256 − the variables (23 simple ones and `a$` at 7 bytes each, `o%()` 15: 183) ≈ 325 |
+| 2026-11-18 | 888 after quitting; **about 449 in play** | first tightening pass (lines joined, rems kept in the source) and the 4 duplicate corners copied (PRG 2697, 124 less). Same play as above. |
