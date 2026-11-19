@@ -110,7 +110,6 @@ No arrays besides the step table `o%(0-3)` (-22, 1, 22, -1 for up, right, down, 
 | 487-520 | wait for a key pressed twice: `rr` goes back to 300 (board and a new monkey; the character set is still loaded), `qq` falls into 520; other keys are ignored. 520 puts the ROM character set and top of BASIC back; started on its own (841 = 0) it ends (525), from the launcher it loads the launcher (530-545, `meta/docs/routines.md`; `{reverse off}` first, since reverse mode from the last print would make BASIC misread the `load` line). During play, `qq` goes to 890 and `rr` to 300 (435); the redraw takes about a second |
 | 600-610 | banana: a random cell of the play area (row 3-17, column 1-20: `67+int(rnd(1)*15)*22+int(rnd(1)*20)`), picked again until it's blank, then a yellow banana; no reachability check (an open board, and the tail always moves) |
 | 700-730 | eat: 3 more cells to grow, score +1, a new banana, the score printed after `SCORE`, the ding-ding (702, fade at 720); every 3rd banana a shorter delay |
-| 800-850 | **test start** (`tt`, hidden: not in the help): draws a 109-cell monkey snaking across rows 3-8 (the length at about 35 bananas), head at row 8 moving left; with score 35 and its delay (268), set at 407-408 when `f` is 1. For testing the death walk and late-game speed without 4.5 minutes of play. Kept for now (the user, 2026-11-17); remove before release |
 | 890-895 | `qq` during play: from the launcher with a score above 0, the result with the time so far, then 520 |
 | 900-920 | result for the launcher (game 3, variant 1, fields score and seconds played, at 900-909): skipped for a score of 0, and when the area already holds a better MonkeyTail result, so after `rr` the best game is the one posted (the user, 2026-11-18) |
 | 1000-1040 | character data: blank, head, banana, brick, the 16 tail pieces, 4 of them as copies |
@@ -136,8 +135,6 @@ No arrays besides the step table `o%(0-3)` (-22, 1, 22, -1 for up, right, down, 
 | `w` | the delay between moves (the speed): 400 down to 150 |
 | `h` | the volume: 7, or 0 when muted with `m` |
 | `x`, `y` | the death walk's falling and rising pitch |
-| `f` | 1 when `tt` asked for the test start |
-| `r`, `u` | test start: row and column of the cell being drawn |
 | `z` | `ti` at the start of a game; at game over, the jiffies played |
 | `j` | the direction a key asks for |
 | `k` | the key's code, `asc(a$)and127` (Shift ignored); also a character code while loading |
@@ -178,3 +175,4 @@ Free memory measured with `?fre(0)` after quitting, with the date and what chang
 | 2026-11-18 | 764 after quitting; **about 325 in play** | steps 3-7 and `tt` (PRG 2821). Played: `m` twice, `tt`, the crash, death walk and game over, `qq`. Quitting runs `clr` and gives back the character set's 256 bytes, so in play is 764 − 256 − the variables (23 simple ones and `a$` at 7 bytes each, `o%()` 15: 183) ≈ 325 |
 | 2026-11-18 | 888 after quitting; **about 449 in play** | first tightening pass (lines joined, rems kept in the source) and the 4 duplicate corners copied (PRG 2697, 124 less). Same play as above. |
 | 2026-11-18 | 558 after quitting; **about 120 in play** | the launcher handoff (PRG 3027, 330 more). `tt` stays until its bytes are needed (the user, 2026-11-18). |
+| 2026-11-18 | 882 after quitting; **about 460 in play** | the `tt` test start removed for the v1 release (PRG 2703, 324 less; the variables `f`, `r`, `u` gone too) |

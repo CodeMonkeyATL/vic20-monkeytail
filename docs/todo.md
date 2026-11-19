@@ -14,7 +14,6 @@ Known issues and ideas. Nothing here is scheduled; the user picks what's worth d
 - **The death walk's length (the user, 2026-11-16):** at a score of 26 (about 80 cells, about 5 seconds) it wasn't tedious; it's a rewarding replay of the path traveled, so longer may be fine too. Revisit with the crash sound: if it drags late in the game, a delay that shrinks with the length.
 - **Bonus pieces (the user, 2026-11-16, "maybe getting ahead of myself"):** e.g. a cherry that appears now and then and shortens the tail, or is worth more. To decide: what it does, how long it stays, its glyph. Shortening fits the screen model: step the tail end several times in one move.
 
-- **Remove the `tt` test start before a release** (lines 407-408, 436, 515, 800-850; design.md).
 
 ## Later
 
